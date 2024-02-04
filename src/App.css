@@ -56,12 +56,12 @@ button {
 }
 
 .test-now-button, .re-test-button {
-  background-color: #4CAF50; /* Green background */
+  background-color: #4CAF50; 
   color: white;
 }
 
 .test-now-button:hover, .re-test-button:hover {
-  background-color: #45a049; /* Darker green */
+  background-color: #45a049; 
 }
 
 .success-tick, .failure-x {
