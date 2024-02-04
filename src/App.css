@@ -1,0 +1,109 @@
+.App {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: black;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.test-container {
+  width: 80%;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.test {
+  background-color: #333;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.input, .main-input, .sub-text-box {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: none;
+  color: black;
+}
+
+.main-input, .sub-text-box {
+  background-color: #fff;
+}
+
+button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-step-button, .remove-step-button, .remove-button {
+  background-color: #555;
+  color: white;
+}
+
+.add-step-button:hover, .remove-step-button:hover, .remove-button:hover {
+  background-color: #777;
+}
+
+.test-now-button, .re-test-button {
+  background-color: #4CAF50; /* Green background */
+  color: white;
+}
+
+.test-now-button:hover, .re-test-button:hover {
+  background-color: #45a049; /* Darker green */
+}
+
+.success-tick, .failure-x {
+  font-size: 24px;
+  margin-left: 10px;
+}
+
+.success-tick {
+  color: limegreen;
+}
+
+.failure-x {
+  color: red;
+}
+
+.clock-symbol {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: yellow;
+  border-radius: 50%;
+  margin-left: 10px;
+}
+
+.test-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #222;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.successful-count {
+  color: limegreen;
+}
+
+.failed-count {
+  color: red;
+}
+
+.yetToTest-count {
+  color: yellow;
+}
