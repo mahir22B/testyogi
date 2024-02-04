@@ -1,109 +1,228 @@
-.App {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: black;
-  color: white;
-  font-family: Arial, sans-serif;
-}
-
-.test-container {
-  width: 80%;
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.test {
-  background-color: #333;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.input, .main-input, .sub-text-box {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  box-sizing: border-box;
-  border-radius: 4px;
-  border: none;
-  color: black;
-}
-
-.main-input, .sub-text-box {
-  background-color: #fff;
-}
-
-button {
-  padding: 10px 20px;
-  margin-right: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.add-step-button, .remove-step-button, .remove-button {
-  background-color: #555;
-  color: white;
-}
-
-.add-step-button:hover, .remove-step-button:hover, .remove-button:hover {
-  background-color: #777;
-}
-
-.test-now-button, .re-test-button {
-  background-color: #4CAF50; 
-  color: white;
-}
-
-.test-now-button:hover, .re-test-button:hover {
-  background-color: #45a049; 
-}
-
-.success-tick, .failure-x {
-  font-size: 24px;
-  margin-left: 10px;
-}
-
-.success-tick {
-  color: limegreen;
-}
-
-.failure-x {
-  color: red;
-}
-
-.clock-symbol {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  background-color: yellow;
-  border-radius: 50%;
-  margin-left: 10px;
-}
-
+User
 .test-header {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background-color: #222;
-  color: white;
-  padding: 10px 0;
-  text-align: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: black;
+    color: white;
+    height: fit-content;
 }
 
 .successful-count {
-  color: limegreen;
+    color: green;
+    font-weight: bolder;
 }
 
 .failed-count {
-  color: red;
+    color: red;
 }
 
 .yetToTest-count {
-  color: yellow;
+    color: yellow;
 }
+
+
+.App {
+    background-color: black;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.test-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+}
+
+.test-all-button{
+    margin-bottom: 2rem;
+}
+
+.test {
+    display: flex;
+    flex-direction: column; /* Align children in a column */
+    align-items: flex-start; /* Align children to the start of the flex container */
+    animation: fadeIn 1s;
+    margin-bottom: 20px; /* Keep the spacing between each test block */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+.test-row {
+    display: flex;
+    gap: 15px; /* Space between inline elements */
+    align-items: center; /* Center the elements vertically */
+    width: 100%;
+}
+
+
+.main-input {
+    padding: 10px;
+    width: 400px;
+    border: 1px solid #aaa;
+    margin-right: 1rem;
+    border-radius: 5px;
+    outline: none;
+    transition: border 0.3s ease;
+    flex: 1;
+}
+
+input:focus {
+    border-color: #fff;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.remove-button {
+    background-color: red;
+    color: white;
+    margin-left: 10px;
+}
+
+
+button:hover {
+    background-color: #555;
+}
+
+.success-tick {
+    color: green;
+    font-size: 1.5rem;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.failure-x {
+    color: red;
+    font-size: 1.5rem;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+
+.clock-symbol {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid yellow;
+    border-radius: 50%;
+    position: relative;
+}
+
+.clock-symbol::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 8px;
+    background-color: yellow;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+}
+
+.clock-symbol::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 6px;
+    background-color: yellow;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.add-step-button {
+    background: green;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-top: 0.5em;
+}
+
+.add-step-button {
+    background: none; 
+    width: 30px; 
+    height: 30px; 
+    text-align: center; 
+    padding: 0; 
+    border-radius: 50%; 
+    border: none;
+    color: green;
+    font-size: 20px; 
+    margin-top: 0.5em;
+    outline: none; 
+}
+
+.remove-step-button {
+    background: none;
+    border: none;
+    border-radius: 50%; 
+    color: red;
+    cursor: pointer;
+    margin-left: 0.5em;
+    padding: 0; 
+    width: 30px; 
+    height: 30px; 
+    font-size: 20px; 
+    text-align: center; 
+    outline: none;
+}
+
+.sub-scenario {
+    margin-top: 0.5em;
+    display: flex;
+    align-items: center;
+    width: 30%;
+}
+
+.sub-scenario-input {
+    display: flex;
+    gap: 15px; 
+    align-items: center; 
+    margin-top: 1rem;
+    width: 35%;
+}
+
+.sub-text-box{
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #aaa;
+    margin-right: 1rem;
+    border-radius: 5px;
+    outline: none;
+    transition: border 0.3s ease;
+    flex: 1;
+}
+
+
+
+.sub-scenario-controls {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the start of the flex container */
+    gap: 15px; /* Space between buttons */
+    margin-top: 0.5em;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 25%, transparent 25%);
+  }
