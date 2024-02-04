@@ -213,8 +213,8 @@ button:hover {
 
 .sub-scenario-controls {
     display: flex;
-    justify-content: flex-start; /* Align buttons to the start of the flex container */
-    gap: 15px; /* Space between buttons */
+    justify-content: flex-start; 
+    gap: 15px;
     margin-top: 0.5em;
 }
 
