@@ -6,7 +6,7 @@ function App() {
         { scenario: '', subScenarios: [], url: '', status: null, loading: false }
     ]);
 
-    const API_BASE_URL = "http://127.0.0.1:5000/";
+    const API_BASE_URL = "http://127.0.0.1:5000";
 
     const runTest = async (index) => {
         const currentTest = tests[index];

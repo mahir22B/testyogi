@@ -5,12 +5,13 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key='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')
 import re
 
 app = Flask(__name__)
-CORS(app, resources={r"/run-test": {"origins": "http://localhost:3000"}})
-openai.api_key = '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'
+CORS(app, resources={r"/run-test": {"origins": ["http://localhost:3000"]}})
 
 class TestExecutor:
     def __init__(self, headless=True):
@@ -20,103 +21,127 @@ class TestExecutor:
 
     def execute_command(self, action, selector_type, selector_value, expected_text=None):
         try:
-            element = None
+            # Find the element based on the selector type
             if selector_type == "id":
-                element = self.driver.find_element(by=By.ID, value=selector_value)
+                element = self.driver.find_element(By.ID, selector_value)
             elif selector_type == "class":
-                element = self.driver.find_element(by=By.CLASS_NAME, value=selector_value)
+                element = self.driver.find_element(By.CLASS_NAME, selector_value)
             elif selector_type == "name":
-                element = self.driver.find_element(by=By.NAME, value=selector_value)
-            elif selector_type == "text":
-                element = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, f"//button[contains(., '{selector_value}')]"))
-                )
+                element = self.driver.find_element(By.NAME, selector_value)
+            elif selector_type == "xpath":
+                element = self.driver.find_element(By.XPATH, selector_value)
+            else:
+                return f"Failure: Unsupported selector type '{selector_type}'"
 
-            if action == "Click" and element:
+            # Perform the specified action
+            if action.lower() == "click":
                 element.click()
                 return "Success"
-            elif action == "Check":
-                element_text = element.text if element else ""
-                if expected_text and expected_text == element_text:
+            elif action.lower() in ["get element text","get text","get the text", "check"]: 
+                actual_text = element.text
+                if expected_text and actual_text == expected_text:
                     return "Success"
-                elif expected_text:
-                    return f"Failure: Text '{element_text}' does not match expected '{expected_text}'"
                 else:
-                    return "Success: Text found"
+                    return f"Failure: Text '{actual_text}' does not match expected '{expected_text}'"
             else:
-                return f"Failure: Unsupported action '{action}' or element not found"
+                return f"Failure: Unsupported action '{action}'"
 
         except NoSuchElementException:
             return f"Failure: Could not find element with {selector_type}='{selector_value}'"
-        except TimeoutException:
-            return f"Failure: Timeout while waiting for element with {selector_type}='{selector_value}'"
         except Exception as e:
             return f"Failure: {str(e)}"
+
 
 def interpret_scenario(scenario):
     steps = scenario.split(' then ')
     commands = []
 
     for step in steps:
-        response = openai.Completion.create(
-            model="gpt-3.5-turbo-instruct",
-            prompt=(
-                f"Translate the following user story into structured commands for a test automation script:\n\n"
-                f"'{step}'\n\n"
-                "Provide the type of action (Click or Check), the selector method (id, class, name), "
-                "the selector's value, and any expected text if applicable. Write each piece of information "
-                "on a new line."
-            ),
-            max_tokens=150,
+        detailed_prompt = (
+            f"Translate the following user story into Selenium WebDriver Python commands in a structured format:\n\n"
+            f"'{step}'\n\n"
+            "Format the response as follows:\n"
+            "- Action: [The action to be performed]\n"
+            "- Selector method: [id/class/name/xpath]\n"
+            "- Selector value: [The value of the selector]\n"
+            "- Expected text: [The expected text, if applicable]\n"
+            "Provide the information in a list format, one item per line."
         )
-        response_text = response.choices[0].text.strip().split("\n")
+
+
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant who can translate natural language into Selenium WebDriver Python commands."},
+                {"role": "user", "content": detailed_prompt}
+            ]
+        )
+
+        if response.choices:
+            # Assuming the first choice has at least one message
+            response_text = response.choices[0].message.content.strip().split("\n")
+        else:
+            response_text = ["No choices in response."]
         
-        # Debugging output
         print(f"Response text for '{step}': {response_text}")
 
-        if len(response_text) >= 3:  # Expecting at least action, selector type, and selector value
-            action = response_text[0].replace('Action:', '').strip()
-            selector_type = response_text[1].strip()
-            selector_value = response_text[2].strip()
-            expected_text = response_text[3].strip() if len(response_text) > 3 else None
+        # Initialize command structure outside of if-else to ensure it's always defined
+        command = {}
+        for line in response_text:
+            if line.startswith('- Action:'):
+                command['action'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- Selector method:'):
+                command['selector_type'] = line.split(':', 1)[1].strip()
+            elif line.startswith("- Selector value:"):
+                command['selector_value'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- Expected text:'):
+                # Removing potential quotes for consistency
+                command['expected_text'] = line.split(':', 1)[1].strip().strip('"')
 
-            command = {
-                "action": action,
-                "selector_type": selector_type,
-                "selector_value": selector_value,
-                "expected_text": expected_text
-            }
+        # Ensure all required keys are present
+        if all(key in command for key in ['action', 'selector_type', 'selector_value']):
             commands.append(command)
         else:
-            print(f"Could not interpret the step: {step}")
+            # Handle incomplete commands
+            print(f"Could not fully interpret the step: {step}")
             commands.append({"error": "Could not interpret the step", "original_text": step})
 
     return commands
 
 @app.route('/run-test', methods=['POST'])
 @app.route('/run-test', methods=['POST'])
+
 def run_test():
     data = request.json
-    scenario = data["scenario"]
-    url = data["url"]
+    scenario = data.get("scenario")
+    url = data.get("url")
 
-    tester = TestExecutor(headless=False)
-    tester.driver.get(url)
+    tester = TestExecutor(headless=False)  # Adjust headless based on your needs
     results = []
 
     try:
-        for command in interpret_scenario(scenario):
+        tester.driver.get(url)
+        commands = interpret_scenario(scenario)
+        
+        for command in commands:
             if "error" in command:
-                # If there's an error in the command, append it to the results and possibly stop processing further commands.
-                results.append({"error": command["error"], "original_text": command["original_text"]})
+                # Log the error and append "Failure" instead of the entire error object
                 print(f"Error in command: {command['error']}")
-                break
+                results.append("Failure")
+                break  # Assuming we stop at the first error, as per your logic
             else:
-                # If there's no error, execute the command normally.
+                print(f"Executing command: {command}")
+                # Execute the command
                 result = tester.execute_command(**command)
-                results.append(result)
-                if "Failure" in result:
-                    break  # Stop the sequence upon the first failure.
+                print(f"Command result: {result}")
+                # Append "Success" or "Failure" based on command execution outcome
+                results.append("Success" if result.startswith("Success") else "Failure")
+                if result.startswith("Failure"):
+                    break  # Stop on first failure, as per your logic
+    except Exception as e:
+        # Handle any exceptions that occur during test execution
+        print(f"Exception during test execution: {str(e)}")
+        results.append("Failure")  # Mark as failure in case of exception
     finally:
         tester.driver.quit()
     
