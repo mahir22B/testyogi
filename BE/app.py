@@ -37,7 +37,7 @@ class TestExecutor:
             if action.lower() == "click":
                 element.click()
                 return "Success"
-            elif action.lower() in ["get element text","get text","get the text", "check"]: 
+            elif action.lower() in ["get element text","get text","get the text", "check", "Verify text"]: 
                 actual_text = element.text
                 if expected_text and actual_text == expected_text:
                     return "Success"
@@ -78,7 +78,6 @@ def interpret_scenario(scenario):
         )
 
         if response.choices:
-            # Assuming the first choice has at least one message
             response_text = response.choices[0].message.content.strip().split("\n")
         else:
             response_text = ["No choices in response."]
