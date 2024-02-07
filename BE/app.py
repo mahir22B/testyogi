@@ -22,7 +22,7 @@ class TestExecutor:
     def execute_command(self, action, selector_type, selector_value, expected_text=None):
         try:
             # Find the element based on the selector type
-            if selector_type == "id":
+            if selector_type == "id" or "ID":
                 element = self.driver.find_element(By.ID, selector_value)
             elif selector_type == "class":
                 element = self.driver.find_element(By.CLASS_NAME, selector_value)
@@ -37,7 +37,7 @@ class TestExecutor:
             if action.lower() == "click":
                 element.click()
                 return "Success"
-            elif action.lower() in ["get element text","get text","get the text", "check", "Verify text"]: 
+            elif action.lower() in ["get element text","get text","get the text", "check", "Verify text","Get text of element"]: 
                 actual_text = element.text
                 if expected_text and actual_text == expected_text:
                     return "Success"
@@ -101,7 +101,6 @@ def interpret_scenario(scenario):
         if all(key in command for key in ['action', 'selector_type', 'selector_value']):
             commands.append(command)
         else:
-            # Handle incomplete commands
             print(f"Could not fully interpret the step: {step}")
             commands.append({"error": "Could not interpret the step", "original_text": step})
 
