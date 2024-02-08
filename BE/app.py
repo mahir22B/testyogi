@@ -37,7 +37,7 @@ class TestExecutor:
             if action.lower() == "click":
                 element.click()
                 return "Success"
-            elif action.lower() in ["get element text","get text","get the text", "check", "Verify text","Get text of element","Get element attribute","Assert","Retrieve text"]: 
+            elif action.lower() in ["get element text","get text","get the text", "check", "Verify text","Get text of element","Get element attribute","Assert text","Retrieve text"]: 
                 actual_text = element.text
                 if expected_text and actual_text == expected_text:
                     return "Success"
