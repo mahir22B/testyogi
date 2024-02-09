@@ -126,7 +126,7 @@ def run_test():
                 # Log the error and append "Failure" instead of the entire error object
                 print(f"Error in command: {command['error']}")
                 results.append("Failure")
-                break  # Assuming we stop at the first error, as per your logic
+                break 
             else:
                 print(f"Executing command: {command}")
                 # Execute the command
