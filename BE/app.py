@@ -114,7 +114,7 @@ def run_test():
     scenario = data.get("scenario")
     url = data.get("url")
 
-    tester = TestExecutor(headless=False)  # Adjust headless based on your needs
+    tester = TestExecutor(headless=False) 
     results = []
 
     try:
@@ -139,7 +139,7 @@ def run_test():
     except Exception as e:
         # Handle any exceptions that occur during test execution
         print(f"Exception during test execution: {str(e)}")
-        results.append("Failure")  # Mark as failure in case of exception
+        results.append("Failure") 
     finally:
         tester.driver.quit()
     
