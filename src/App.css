@@ -1,228 +1,268 @@
-User
-.test-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    background-color: black;
-    color: white;
-    height: fit-content;
+.main-header {
+  display: flex;
+  flex-direction: column;
 }
-
+.test-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  padding: 1rem;
+  background-color: black;
+  color: white;
+  height: fit-content;
+  padding: 5% 10%;
+}
+.header-heading {
+  color: aqua;
+  text-align: center;
+}
+.btn-top {
+  border: 1px solid;
+  border-radius: 20px;
+  padding: 10px;
+}
+.btn-text {
+  color: white;
+  font-size: small;
+}
 .successful-count {
-    color: green;
-    font-weight: bolder;
+  color: green;
+  font-weight: bolder;
 }
 
 .failed-count {
-    color: red;
+  color: red;
 }
 
 .yetToTest-count {
-    color: yellow;
+  color: yellow;
 }
 
-
 .App {
-    background-color: black;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  padding: 2% 10%;
 }
 
 .test-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
 }
 
-.test-all-button{
-    margin-bottom: 2rem;
+.test-all-button {
+  margin-bottom: 2rem;
 }
 
 .test {
-    display: flex;
-    flex-direction: column; /* Align children in a column */
-    align-items: flex-start; /* Align children to the start of the flex container */
-    animation: fadeIn 1s;
-    margin-bottom: 20px; /* Keep the spacing between each test block */
+  display: flex;
+  flex-direction: column; /* Align children in a column */
+  align-items: flex-start; /* Align children to the start of the flex container */
+  animation: fadeIn 1s;
+  margin-bottom: 20px; /* Keep the spacing between each test block */
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-
 
 .test-row {
-    display: flex;
-    gap: 15px; /* Space between inline elements */
-    align-items: center; /* Center the elements vertically */
-    width: 100%;
+  display: flex;
+  gap: 15px; /* Space between inline elements */
+  align-items: center; /* Center the elements vertically */
+  width: 100%;
 }
 
-
 .main-input {
-    padding: 10px;
-    width: 400px;
-    border: 1px solid #aaa;
-    margin-right: 1rem;
-    border-radius: 5px;
-    outline: none;
-    transition: border 0.3s ease;
-    flex: 1;
+  padding: 10px;
+  width: 400px;
+  border: 1px solid #aaa;
+  margin-right: 1rem;
+  border-radius: 5px;
+  outline: none;
+  transition: border 0.3s ease;
+  flex: 1;
 }
 
 input:focus {
-    border-color: #fff;
+  border-color: #fff;
 }
 
 button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #333;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #333;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .remove-button {
-    background-color: red;
-    color: white;
-    margin-left: 10px;
+  background-color: red;
+  color: white;
+  margin-left: 10px;
 }
 
-
 button:hover {
-    background-color: #555;
+  background-color: #555;
 }
 
 .success-tick {
-    color: green;
-    font-size: 1.5rem;
-    margin-left: 10px;
-    vertical-align: middle;
+  color: green;
+  font-size: 1.5rem;
+  margin-left: 10px;
+  vertical-align: middle;
 }
 
 .failure-x {
-    color: red;
-    font-size: 1.5rem;
-    margin-left: 10px;
-    vertical-align: middle;
+  color: red;
+  font-size: 1.5rem;
+  margin-left: 10px;
+  vertical-align: middle;
 }
 
-
 .clock-symbol {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid yellow;
-    border-radius: 50%;
-    position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid yellow;
+  border-radius: 50%;
+  position: relative;
 }
 
 .clock-symbol::before {
-    content: '';
-    position: absolute;
-    width: 2px;
-    height: 8px;
-    background-color: yellow;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) rotate(90deg);
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 8px;
+  background-color: yellow;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) rotate(90deg);
 }
 
 .clock-symbol::after {
-    content: '';
-    position: absolute;
-    width: 2px;
-    height: 6px;
-    background-color: yellow;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%);
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 6px;
+  background-color: yellow;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .add-step-button {
-    background: green;
-    border: none;
-    color: white;
-    cursor: pointer;
-    margin-top: 0.5em;
-}
-
-.add-step-button {
-    background: none; 
-    width: 30px; 
-    height: 30px; 
-    text-align: center; 
-    padding: 0; 
-    border-radius: 50%; 
-    border: none;
-    color: green;
-    font-size: 20px; 
-    margin-top: 0.5em;
-    outline: none; 
+  background: none;
+  color: green;
+  cursor: pointer;
+  padding: 0px;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 50%;
+  margin-top: 10px;
 }
 
 .remove-step-button {
-    background: none;
-    border: none;
-    border-radius: 50%; 
-    color: red;
-    cursor: pointer;
-    margin-left: 0.5em;
-    padding: 0; 
-    width: 30px; 
-    height: 30px; 
-    font-size: 20px; 
-    text-align: center; 
-    outline: none;
+  background: none;
+  color: red;
+  cursor: pointer;
+  margin-left: 0.5em;
+  padding: 0px;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 50%;
 }
 
 .sub-scenario {
-    margin-top: 0.5em;
-    display: flex;
-    align-items: center;
-    width: 30%;
+  margin-top: 0.5em;
+  display: flex;
+  align-items: center;
+  width: 30%;
 }
 
 .sub-scenario-input {
-    display: flex;
-    gap: 15px; 
-    align-items: center; 
-    margin-top: 1rem;
-    width: 35%;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: 1rem;
+  width: 35%;
 }
 
-.sub-text-box{
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #aaa;
-    margin-right: 1rem;
-    border-radius: 5px;
-    outline: none;
-    transition: border 0.3s ease;
-    flex: 1;
+.sub-text-box {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #aaa;
+  margin-right: 1rem;
+  border-radius: 5px;
+  outline: none;
+  transition: border 0.3s ease;
+  flex: 1;
 }
-
-
 
 .sub-scenario-controls {
-    display: flex;
-    justify-content: flex-start; 
-    gap: 15px;
-    margin-top: 0.5em;
+  display: flex;
+  justify-content: flex-start;
+  gap: 15px;
+  margin-top: 0.5em;
 }
 
 .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 10px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 25%, transparent 25%);
-  }
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25) 25%,
+    transparent 25%
+  );
+}
+
+.counter-main {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 3%;
+  padding-top: 3%;
+  gap: 50px;
+}
+.counter-cards-1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-size: 20px;
+  background: #97e597;
+  border-radius: 20px;
+  width: 200px;
+}
+.counter-cards-2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-size: 20px;
+  background: #f7aab7;
+  border-radius: 20px;
+  width: 200px;
+}
+.counter-text {
+  margin-left: 20px;
+}
+.counter-text #text {
+  font-size: small;
+}
+.counter-text #num {
+  font-weight: 500;
+}

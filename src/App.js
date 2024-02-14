@@ -1,158 +1,141 @@
-import React, { useState } from 'react';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import Prompt from "./Components/Prompt/Prompt";
+import { Header } from "./Components/Header/Header";
+import { useDispatch } from "react-redux";
+import { increment, rate } from "./redux/slices/counterSlice";
+import { ServerAPI } from "./API/ServerApi";
 
 function App() {
-    const [tests, setTests] = useState([
-        { scenario: '', subScenarios: [], url: '', status: null, loading: false }
-    ]);
+  const dispatch = useDispatch();
+  const [tests, setTests] = useState([
+    { scenario: "", subScenarios: [], url: "", status: null, loading: false },
+  ]);
 
-    const API_BASE_URL = "http://127.0.0.1:5000";
+  const runTest = async (index) => {
+    let successCount = 0;
+    dispatch(increment());
+    updateTest(index, "loading", true);
+    const currentTest = tests[index];
+    let subPrompts = [];
+    currentTest.subScenarios.forEach((x) => {
+      subPrompts.push(x.scenario);
+    });
+    const scenarioString = [currentTest.scenario, ...subPrompts]
+      .join(" then ")
+      .trim();
+    console.log(scenarioString);
+    const data = await ServerAPI(
+      JSON.stringify({
+        ...currentTest,
+        status: null,
+        scenario: scenarioString,
+        subScenarios: subPrompts,
+      })
+    );
+    console.log("backend response ....", data?.results);
 
-    const runTest = async (index) => {
-        const currentTest = tests[index];
-        const scenarioString = [currentTest.scenario, ...currentTest.subScenarios].join(' then ').trim();
-    
-        updateTest(index, 'loading', true);
-    
-        try {
-            let response = await fetch(`${API_BASE_URL}/run-test`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ...currentTest, scenario: scenarioString })
-            });
-    
-            if (!response.ok) {
-                throw new Error(`HTTP status ${response.status}`);
-            }
-    
-            let data = await response.json();
-            console.log(data);
-            if (data.results && data.results.length > 0) {
-                const resultStatus = data.results[0] === "Success" ? "success" : "failed";
-                updateTest(index, 'status', resultStatus);
-            } else {
-                updateTest(index, 'status', 'failed'); // If there are no results, mark as failed
-            }
-        } catch (error) {
-            console.error("Error running the test:", error);
-            alert(`Error running test: ${error.message}`);
-        } finally {
-            updateTest(index, 'loading', false);
-        }
-    };
-    
+    const totalTests =
+      tests[index]?.subScenarios?.length > 0
+        ? 1 + tests[index]?.subScenarios?.length
+        : 1;
 
-    const addMoreTests = () => {
-        setTests(tests => [...tests, { scenario: '', subScenarios: [], url: '', status: null, loading:false }]);
-    };
+    console.log("totalTests", totalTests);
 
-    const removeTest = (indexToRemove) => {
-        setTests(tests.filter((_, index) => index !== indexToRemove));
-    };
-
-    const updateTest = (index, field, value) => {
-        const newTests = [...tests];
-        newTests[index][field] = value;
-        setTests(newTests);
-    };
-
-    const addSubStepInput = (index) => {
-        const newTests = [...tests];
-        if (!newTests[index].subScenarios || newTests[index].subScenarios.length === 0) {
-            newTests[index].subScenarios = [''];
-        } else {
-            newTests[index].subScenarios.push('');
-        }
-        setTests(newTests);
-    };
-
-    const updateSubStep = (index, subIndex, value) => {
-        const newTests = [...tests];
-        newTests[index].subScenarios[subIndex] = value;
-        setTests(newTests);
-    };
-
-    const removeSubStep = (index, subIndex) => {
-        const newTests = [...tests];
-        newTests[index].subScenarios.splice(subIndex, 1);
-        setTests(newTests);
-    };
-
-    const getStatusCounts = () => {
-        let successful = 0, failed = 0, yetToTest = 0;
-        tests.forEach((test) => {
-            if (test.status === "success") {
-                successful++;
-            } else if (test.status === "failed") {
-                failed++;
-            } else {
-                yetToTest++;
-            }
+    try {
+      if (data.results && data.results.length > 0) {
+        data.results.forEach((result, resIndex) => {
+          console.log("single value", result, result === "Success");
+          const resultStatus = result === "Success" ? "success" : "failure";
+          if (resIndex < 1) {
+            updateTest(index, "status", resultStatus);
+            if (resultStatus === "success") successCount += 1;
+          } else if (resIndex >= 1) {
+            updateSubStep(index, resIndex - 1, "status", resultStatus);
+            if (resultStatus === "success") successCount += 1;
+          }
         });
-        return { successful, failed, yetToTest };
-    };
+        console.log("successCount", successCount);
+        const passRate = ((successCount / totalTests) * 100).toFixed(2);
+        console.log("passRate", passRate);
+        dispatch(rate({ rate: passRate }));
+      } else {
+        updateTest(index, "status", "failure");
+      }
+    } catch (error) {
+      console.error("Error running the test:", error);
+      alert(`Error running test: ${error.message}`);
+    } finally {
+      updateTest(index, "loading", false);
+    }
+  };
 
-    const { successful, failed, yetToTest } = getStatusCounts();
+  const addMoreTests = () => {
+    setTests((tests) => [
+      ...tests,
+      { scenario: "", subScenarios: [], url: "", status: null, loading: false },
+    ]);
+  };
 
-    return (
-        <>
-            {/* <header className="test-header">
-                <div>Successful: <span className="successful-count">{successful}</span></div>
-                <div>Failed: <span className="failed-count">{failed}</span></div>
-                <div>Yet to Test: <span className="yetToTest-count">{yetToTest}</span></div>
-            </header> */}
-            <div className="App">
-                <div className="test-container">
-                    {tests.map((test, index) => (
-                        <div key={index} className="test">
-                            <div className="test-row">
-                                <input
-                                    type="text"
-                                    placeholder="Main Scenario"
-                                    value={test.scenario}
-                                    onChange={(e) => updateTest(index, 'scenario', e.target.value)}
-                                    className='main-input'
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="URL"
-                                    value={test.url}
-                                    onChange={(e) => updateTest(index, 'url', e.target.value)}
-                                    className='main-input'
-                                />
-                                <button onClick={() => runTest(index)}>
-                                    {test.loading ? 'Testing...' : (test.status === "success" ? "Re-Test" : "Test Now")}
-                                </button>
-                                {/* {tests.length > 1 && <button onClick={() => removeTest(index)} className="remove-button">X</button>} */}
-                            {test.status === "success" && <span className="success-tick">&#10004;</span>}
-                            {test.status === "failed" && <span className="failure-x">&#10008;</span>}
-                            {!test.status && !test.loading && <div className="clock-symbol"></div>}
-                                {tests.length > 1 && (
-                                    <button onClick={() => removeTest(index)} className="remove-button">X</button>
-                                )}
-                            </div>
-                            {test.subScenarios.length > 0 && test.subScenarios.map((subScenario, subIndex) => (
-                                <div key={`sub-${index}-${subIndex}`} className="sub-scenario-input">
-                                    <input
-                                        type="text"
-                                        placeholder="Then..."
-                                        value={subScenario}
-                                        onChange={(e) => updateSubStep(index, subIndex, e.target.value)}
-                                        className='sub-text-box'
-                                    />
-                                    <button onClick={() => removeSubStep(index, subIndex)} className="remove-step-button">-</button>
-                                </div>
-                            ))}
-                            <button onClick={() => addSubStepInput(index)} className="add-step-button">+</button>
-                           
-                        </div>
-                    ))}
-                    <button onClick={addMoreTests}>Add More Tests</button>
-                </div>
-            </div>
-        </>);
+  const removeTest = (indexToRemove) => {
+    setTests(tests.filter((_, index) => index !== indexToRemove));
+  };
+
+  const updateTest = (index, field, value) => {
+    const newTests = [...tests];
+    newTests[index][field] = value;
+    setTests(newTests);
+  };
+
+  const addSubStepInput = (index) => {
+    const newTests = [...tests];
+    if (
+      !newTests[index].subScenarios ||
+      newTests[index].subScenarios.length === 0
+    ) {
+      newTests[index].subScenarios = [{}];
+    } else {
+      newTests[index].subScenarios.push({});
+    }
+    setTests(newTests);
+  };
+
+  const updateSubStep = (index, subIndex, field, value) => {
+    const newTests = [...tests];
+    newTests[index].subScenarios[subIndex][field] = value;
+    setTests(newTests);
+  };
+
+  const removeSubStep = (index, subIndex) => {
+    const newTests = [...tests];
+    newTests[index].subScenarios.splice(subIndex, 1);
+    setTests(newTests);
+  };
+
+  return (
+    <>
+      <Header />
+      <div className="App">
+        <div className="test-container">
+          {tests.map((test, index) => (
+            <Prompt
+              tests={tests}
+              key={index}
+              index={index}
+              test={test}
+              updateTest={updateTest}
+              runTest={runTest}
+              removeTest={removeTest}
+              addSubStepInput={addSubStepInput}
+              updateSubStep={updateSubStep}
+              removeSubStep={removeSubStep}
+            />
+          ))}
+          <button onClick={addMoreTests}>Add More Tests</button>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default App;
