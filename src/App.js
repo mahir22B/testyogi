@@ -14,7 +14,7 @@ function App() {
 
   const runTest = async (index) => {
     let successCount = 0;
-    dispatch(increment());
+
     updateTest(index, "loading", true);
     const currentTest = tests[index];
     let subPrompts = [];
@@ -24,7 +24,7 @@ function App() {
     const scenarioString = [currentTest.scenario, ...subPrompts]
       .join(" then ")
       .trim();
-    console.log(scenarioString);
+
     const data = await ServerAPI(
       JSON.stringify({
         ...currentTest,
@@ -33,34 +33,41 @@ function App() {
         subScenarios: subPrompts,
       })
     );
-    console.log("backend response ....", data?.results);
+    console.log(data?.results);
 
     const totalTests =
       tests[index]?.subScenarios?.length > 0
         ? 1 + tests[index]?.subScenarios?.length
         : 1;
 
-    console.log("totalTests", totalTests);
-
     try {
       if (data.results && data.results.length > 0) {
         data.results.forEach((result, resIndex) => {
-          console.log("single value", result, result === "Success");
-          const resultStatus = result === "Success" ? "success" : "failure";
+          const resultStatus = result == "Success" ? "success" : "failure";
           if (resIndex < 1) {
             updateTest(index, "status", resultStatus);
-            if (resultStatus === "success") successCount += 1;
+            if (resultStatus == "success") successCount += 1;
           } else if (resIndex >= 1) {
             updateSubStep(index, resIndex - 1, "status", resultStatus);
-            if (resultStatus === "success") successCount += 1;
+            if (resultStatus == "success") successCount += 1;
           }
         });
-        console.log("successCount", successCount);
+
         const passRate = ((successCount / totalTests) * 100).toFixed(2);
-        console.log("passRate", passRate);
+
         dispatch(rate({ rate: passRate }));
       } else {
         updateTest(index, "status", "failure");
+      }
+
+      if (tests[index]?.status == "success") {
+        if (
+          tests[index]?.subScenarios?.every(
+            (element) => element?.status == "success"
+          )
+        ) {
+          dispatch(increment());
+        }
       }
     } catch (error) {
       console.error("Error running the test:", error);
@@ -119,8 +126,8 @@ function App() {
         <div className="test-container">
           {tests.map((test, index) => (
             <Prompt
+            key={index}
               tests={tests}
-              key={index}
               index={index}
               test={test}
               updateTest={updateTest}

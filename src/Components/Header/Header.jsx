@@ -11,7 +11,7 @@ export const Header = () => {
         <div className="counter-cards-1">
           <TotalIcon width={25} height={25} />
           <div className="counter-text">
-            <div id="text">Total Test Run</div>
+            <div id="text">Passed Tests</div>
             <div id="num">{counter?.value}</div>
           </div>
         </div>
