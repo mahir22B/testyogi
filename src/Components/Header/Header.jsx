@@ -7,7 +7,6 @@ export const Header = () => {
   const counter = useSelector((state) => state?.counter);
   return (
     <header className="main-header">
-      <h3 className="header-heading">Testing Automation</h3>
       <div className="counter-main">
         <div className="counter-cards-1">
           <TotalIcon width={25} height={25} />

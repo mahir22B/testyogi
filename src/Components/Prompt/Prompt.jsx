@@ -55,6 +55,7 @@ const Prompt = ({
       {test.subScenarios.length > 0 &&
         test.subScenarios.map((subScenario, subIndex) => (
           <SubPrompt
+          key={subIndex}
             test={test}
             index={index}
             subIndex={subIndex}
