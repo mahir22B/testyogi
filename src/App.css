@@ -253,7 +253,7 @@ button:hover {
   justify-content: center;
   padding: 20px;
   font-size: 20px;
-  background: #f7aab7;
+  background: rgb(217, 217, 153);
   border-radius: 20px;
   width: 200px;
 }

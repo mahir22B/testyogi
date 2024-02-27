@@ -37,9 +37,13 @@ class TestExecutor:
             if action.lower() == "click":
                 element.click()
                 return "Success"
-            elif action.lower() in ["get element text","get text","get the text", "check", "Verify text","Get text of element","Get element attribute","Assert text","Retrieve text"]: 
+            elif action.lower() == "Open URL":
+                url = selector_value.strip('"').strip("'")
+                self.driver.get(url)
+                return "Success"
+            elif action.lower() in ["get text"]: 
                 actual_text = element.text
-                if expected_text and actual_text == expected_text:
+                if expected_text and actual_text == expected_text:  
                     return "Success"
                 else:
                     return f"Failure: Text '{actual_text}' does not match expected '{expected_text}'"
@@ -66,6 +70,21 @@ def interpret_scenario(scenario):
             "- Selector value: [The value of the selector]\n"
             "- Expected text: [The expected text, if applicable]\n"
             "Provide the information in a list format, one item per line."
+            """Example 1:
+            User story: 'Click on the button with id max'
+            - Action: Click
+            - Selector method: id
+            - Selector value: max
+            - Expected text:
+
+            Example 2:
+            User story: 'the text with id value-new should be Got it'
+            - Action: Get text
+            - Selector method: id
+            - Selector value: value-new
+            - Expected text: Got it
+            Please follow these formats strictly."""
+            
         )
 
 
@@ -84,7 +103,6 @@ def interpret_scenario(scenario):
         
         print(f"Response text for '{step}': {response_text}")
 
-        # Initialize command structure outside of if-else to ensure it's always defined
         command = {}
         for line in response_text:
             if line.startswith('- Action:'):
@@ -106,6 +124,27 @@ def interpret_scenario(scenario):
 
     return commands
 
+def adjust_ai_output_based_on_user_input(user_input, ai_generated_commands):
+    steps = user_input.split(" then ")
+
+    action_mappings = {
+        "text": "Get text",
+        "click" : "Click"
+        # Add more mappings
+    }
+
+    for i, step in enumerate(steps):
+        for key_phrase, expected_action in action_mappings.items():
+            if key_phrase in step:
+                # Ensure we have a corresponding AI command for this step
+                if i < len(ai_generated_commands) and ai_generated_commands[i]['action'].lower() != expected_action.lower():
+                    print(f"Step {i+1}: Adjusting action from {ai_generated_commands[i]['action']} to {expected_action}")
+                    ai_generated_commands[i]['action'] = expected_action
+                break
+
+    return ai_generated_commands
+
+
 @app.route('/run-test', methods=['POST'])
 @app.route('/run-test', methods=['POST'])
 
@@ -120,8 +159,9 @@ def run_test():
     try:
         tester.driver.get(url)
         commands = interpret_scenario(scenario)
+        adjusted_commands = adjust_ai_output_based_on_user_input(scenario, commands)
         
-        for command in commands:
+        for command in adjusted_commands:
             if "error" in command:
                 # Log the error and append "Failure" instead of the entire error object
                 print(f"Error in command: {command['error']}")
