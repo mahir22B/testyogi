@@ -243,7 +243,7 @@ button:hover {
   justify-content: center;
   padding: 20px;
   font-size: 20px;
-  background: #97e597;
+  color: #fff;
   border-radius: 20px;
   width: 200px;
 }
@@ -253,7 +253,7 @@ button:hover {
   justify-content: center;
   padding: 20px;
   font-size: 20px;
-  background: rgb(217, 217, 153);
+  color: #fff;
   border-radius: 20px;
   width: 200px;
 }

@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from openai import OpenAI
+import requests
 
 client = OpenAI(api_key='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')
 import re
@@ -26,11 +27,33 @@ class TestExecutor:
         else:
             return f"Failure: Current URL ({current_url}) does not match expected URL ({expected_url})"
     
+    def execute_api_call(self, method, endpoint, expected_status):
+        full_url = f"{self.driver.current_url}{endpoint}" 
+        print(f"Executing API call: {method} {full_url} expecting status {expected_status}")
+        try:
+            response = requests.request(method, full_url)
+            if response.status_code == expected_status:
+                print("API call successful with expected status code.")
+                return "Success"
+            else:
+                print(f"API call returned unexpected status code: {response.status_code}")
+                return f"Failure: Expected status {expected_status}, got {response.status_code}"
+        except Exception as e:
+            print(f"Exception occurred during API call: {e}")
+            return f"Failure: Exception occurred - {str(e)}"
+            
 
     def execute_command(self, action, selector_type, selector_value, expected_text=None):
         print(f"Action received: {action}") 
         if action.lower() == "verify navigation":
-            return self.verify_navigation(expected_text)   
+            return self.verify_navigation(expected_text) 
+        
+        if action.lower() == "verify api response":
+                    method = "GET" 
+                    print("METHOD", method)
+                    endpoint = selector_value
+                    expected_status = int(expected_text)
+                    return self.execute_api_call(method, endpoint, expected_status)    
         try:
             print("Attempting to find element...")
             element = None
@@ -58,8 +81,14 @@ class TestExecutor:
                     actual_text = element.text
                     if expected_text and actual_text == expected_text:  
                         return "Success"
-                    else:
-                        return f"Failure: Text '{actual_text}' does not match expected '{expected_text}'" 
+                elif action.lower() == "write data":  
+                    if element is not None:
+                        element.clear()
+                        element.send_keys(expected_text)
+                        print("this", expected_text)
+                    return "Success"      
+                else:
+                    return f"Failure: Text '{actual_text}' does not match expected '{expected_text}'" 
             else:
                 return f"Failure: Unsupported action '{action}'"
 
@@ -96,18 +125,33 @@ def interpret_scenario(scenario):
             """Example of what to do:
             User story: 'Click on the button with id max'
             - Action: Click
-            - Selector method: id
+            - Selector method: id/class
             - Selector value: max
             - Expected text:
 
             Example of what to do:
             User story: 'the text with id value-new should be Got it'
             - Action: Get text
-            - Selector method: id
+            - Selector method: id/class
             - Selector value: value-new
             - Expected text: Got it
+
+            Example:
+            User story: 'Enter "hello@example.com" into the email input field'
+            - Action: Write Data
+            - Selector method: id/name/class/xpath
+            - Selector value: email_field_identifier
+            - Expected text: hello@example.com
+
+
+            Example of what to do:
+            User story: 'the get request to /api/resource should return a 200'
+            - Action: Verify API Response
+            - Selector method: GET
+            - Selector value: /api/resource
+            - Expected text: 200
+
             Please follow these formats strictly."""
-            
         )
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -135,6 +179,13 @@ def interpret_scenario(scenario):
                 elif line.startswith('- Expected text:'):
                     command['expected_text'] = line.split(':', 1)[1].strip().strip('"')
 
+    # Expected text is always a number for api response
+        if command.get('action', '').lower() == 'verify api response':
+            # Simplify expected_text to just contain the status code
+            status_match = re.search(r'\d{3}', command.get('expected_text', ''))
+            if status_match:
+                command['expected_text'] = status_match.group(0)            
+
         # Ensure all required keys are present
         if all(key in command for key in ['action', 'selector_type', 'selector_value']):
             commands.append(command)
@@ -150,6 +201,8 @@ def adjust_ai_output_based_on_user_input(user_input, ai_generated_commands):
     action_mappings = {
         "text": "Get text",
         "click" : "Click",
+        "write": "Write Data",
+        "get":"Verify API Response"
         # Add more mappings
     }
 

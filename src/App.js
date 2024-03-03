@@ -3,7 +3,7 @@ import "./App.css";
 import Prompt from "./Components/Prompt/Prompt";
 import { Header } from "./Components/Header/Header";
 import { useDispatch } from "react-redux";
-import { increment, rate } from "./redux/slices/counterSlice";
+import { failed, increment, rate, reset } from "./redux/slices/counterSlice";
 import { ServerAPI } from "./API/ServerApi";
 
 function App() {
@@ -11,10 +11,11 @@ function App() {
   const [tests, setTests] = useState([
     { scenario: "", subScenarios: [], url: "", status: null, loading: false },
   ]);
-
+  
   const runTest = async (index) => {
     let successCount = 0;
-
+    // dispatch(reset());
+    
     updateTest(index, "loading", true);
     const currentTest = tests[index];
     let subPrompts = [];
@@ -54,7 +55,9 @@ function App() {
         });
 
         const passRate = ((successCount / totalTests) * 100).toFixed(2);
+        const failedTests = totalTests - successCount;
 
+        dispatch(failed({failed : failedTests}));
         dispatch(rate({ rate: passRate }));
       } else {
         updateTest(index, "status", "failure");
