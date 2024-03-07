@@ -5,6 +5,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 from openai import OpenAI
 import requests
 
@@ -53,7 +54,19 @@ class TestExecutor:
                     print("METHOD", method)
                     endpoint = selector_value
                     expected_status = int(expected_text)
-                    return self.execute_api_call(method, endpoint, expected_status)    
+                    return self.execute_api_call(method, endpoint, expected_status)   
+         
+        if action.lower() == "select from dropdown":
+            try:
+                element = self.driver.find_element(getattr(By, selector_type.upper()), selector_value)
+                select = Select(element)
+                select.select_by_visible_text(expected_text)
+                return "Success"
+            except Exception as e:
+                actual_texts = [option.text for option in select.options]
+                actual_texts_str = ", ".join(actual_texts)
+                return f"Failure: Could not locate element with visible text: '{expected_text}'. Found options: {actual_texts_str}"
+        
         try:
             print("Attempting to find element...")
             element = None
@@ -151,6 +164,14 @@ def interpret_scenario(scenario):
             - Selector value: /api/resource
             - Expected text: 200
 
+
+            Example of what to do:
+            User story: 'select mango from dropdown with id fruits'
+            - Action: Verify API Response
+            - Selector method: id/name/class/xpath
+            - Selector value: fruits
+            - Expected text: mango
+
             Please follow these formats strictly."""
         )
             response = client.chat.completions.create(
@@ -202,7 +223,8 @@ def adjust_ai_output_based_on_user_input(user_input, ai_generated_commands):
         "text": "Get text",
         "click" : "Click",
         "write": "Write Data",
-        "get":"Verify API Response"
+        "get":"Verify API Response",
+        "select":"Select From Dropdown"
         # Add more mappings
     }
 
