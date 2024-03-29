@@ -8,8 +8,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from openai import OpenAI
 import requests
+import time
 
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='your-api-key')
 import re
 
 app = Flask(__name__)
@@ -66,6 +67,15 @@ class TestExecutor:
                 actual_texts = [option.text for option in select.options]
                 actual_texts_str = ", ".join(actual_texts)
                 return f"Failure: Could not locate element with visible text: '{expected_text}'. Found options: {actual_texts_str}"
+        
+        if action.lower() == "wait for time":
+            try:
+                wait_time = float(expected_text)  # Convert the wait time to a float
+                print(f"Waiting for {wait_time} seconds...")
+                time.sleep(wait_time)
+                return "Success"
+            except Exception as e:
+                return f"Failure: {str(e)}"
         
         try:
             print("Attempting to find element...")
@@ -172,6 +182,13 @@ def interpret_scenario(scenario):
             - Selector value: fruits
             - Expected text: mango
 
+            Example of what to do:
+            User story: 'Wait for 5 seconds'
+            - Action: wait for time
+            - Selector method: 
+            - Selector value: 
+            - Expected text: 5
+
             Please follow these formats strictly."""
         )
             response = client.chat.completions.create(
@@ -224,14 +241,14 @@ def adjust_ai_output_based_on_user_input(user_input, ai_generated_commands):
         "click" : "Click",
         "write": "Write Data",
         "get":"Verify API Response",
-        "select":"Select From Dropdown"
+        "select":"Select From Dropdown",
+        "wait" :"wait for time"
         # Add more mappings
     }
 
     for i, step in enumerate(steps):
         for key_phrase, expected_action in action_mappings.items():
             if key_phrase in step:
-                # Ensure we have a corresponding AI command for this step
                 if i < len(ai_generated_commands) and ai_generated_commands[i]['action'].lower() != expected_action.lower():
                     print(f"Step {i+1}: Adjusting action from {ai_generated_commands[i]['action']} to {expected_action}")
                     ai_generated_commands[i]['action'] = expected_action

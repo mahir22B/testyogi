@@ -1,7 +1,6 @@
 import React from "react";
 import SubPrompt from "../SubPrompt/SubPrompt";
 import { ReactComponent as PendingIcon } from "../../media/pending.svg";
-import { useSelector } from "react-redux";
 
 const Prompt = ({
   tests,

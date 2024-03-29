@@ -56,10 +56,10 @@
 
 .test {
   display: flex;
-  flex-direction: column; /* Align children in a column */
-  align-items: flex-start; /* Align children to the start of the flex container */
+  flex-direction: column;
+  align-items: flex-start; 
   animation: fadeIn 1s;
-  margin-bottom: 20px; /* Keep the spacing between each test block */
+  margin-bottom: 20px;
 }
 
 @keyframes fadeIn {
@@ -73,8 +73,8 @@
 
 .test-row {
   display: flex;
-  gap: 15px; /* Space between inline elements */
-  align-items: center; /* Center the elements vertically */
+  gap: 15px; 
+  align-items: center;
   width: 100%;
 }
 
